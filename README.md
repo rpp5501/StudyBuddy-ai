@@ -1,30 +1,105 @@
-# AI-powered study app
+# StudyBuddy AI
 
-*Automatically synced with your [v0.dev](https://v0.dev) deployments*
+StudyBuddy AI is a Next.js application that helps students study more efficiently by processing documents (PDFs, DOCX, TXT) and creating flashcards, quizzes, and concept summaries using RAG (Retrieval Augmented Generation).
 
-[![Deployed on Vercel](https://img.shields.io/badge/Deployed%20on-Vercel-black?style=for-the-badge&logo=vercel)](https://vercel.com/rpp5501s-projects/v0-ai-powered-study-app)
-[![Built with v0](https://img.shields.io/badge/Built%20with-v0.dev-black?style=for-the-badge)](https://v0.dev/chat/projects/gqHlSCvnGmc)
+## Features
 
-## Overview
+- 📄 Upload and process academic documents
+- 🔍 Extract key concepts and information
+- 🧠 Generate flashcards for effective studying
+- 📝 Create quizzes to test understanding
+- 📊 Track progress and identify areas for improvement
 
-This repository will stay in sync with your deployed chats on [v0.dev](https://v0.dev).
-Any changes you make to your deployed app will be automatically pushed to this repository from [v0.dev](https://v0.dev).
+## MongoDB Migration
 
-## Deployment
+This project now uses MongoDB (instead of PostgreSQL) for data storage, providing:
 
-Your project is live at:
+- 🚀 Simpler setup and maintenance
+- 🔄 Flexible schema for evolving data models 
+- 🔍 Built-in vector search capabilities (via MongoDB Atlas)
+- 🔗 Native integration with Node.js applications
 
-**[https://vercel.com/rpp5501s-projects/v0-ai-powered-study-app](https://vercel.com/rpp5501s-projects/v0-ai-powered-study-app)**
+## Setup & Configuration
 
-## Build your app
+### Prerequisites
 
-Continue building your app on:
+- Node.js (v16+)
+- MongoDB Atlas account (free tier is sufficient)
+- npm or yarn package manager
 
-**[https://v0.dev/chat/projects/gqHlSCvnGmc](https://v0.dev/chat/projects/gqHlSCvnGmc)**
+### Initial Setup
 
-## How It Works
+1. **Clone the repository**
+   ```bash
+   git clone https://github.com/yourusername/StudyBuddy-ai.git
+   cd StudyBuddy-ai
+   ```
 
-1. Create and modify your project using [v0.dev](https://v0.dev)
-2. Deploy your chats from the v0 interface
-3. Changes are automatically pushed to this repository
-4. Vercel deploys the latest version from this repository
+2. **Install dependencies**
+   ```bash
+   npm install --legacy-peer-deps
+   ```
+
+3. **Configure MongoDB**
+   
+   Follow the instructions in [MONGODB_SETUP.md](./MONGODB_SETUP.md) to set up your MongoDB Atlas database with vector search capabilities.
+
+4. **Environment Variables**
+
+   Create a `.env.local` file in the project root with:
+   ```
+   DATABASE_URL="mongodb+srv://<username>:<password>@<cluster>.mongodb.net/<dbname>?retryWrites=true&w=majority"
+   ```
+   
+   Replace the placeholders with your actual MongoDB connection details.
+
+5. **Run the application**
+   ```bash
+   npm run dev
+   ```
+   
+   Access the application at [http://localhost:3000](http://localhost:3000)
+
+## Document Processing Flow
+
+1. User uploads a document through the UI
+2. Backend processes the document:
+   - Saves file temporarily
+   - Loads and parses content
+   - Splits content into manageable chunks
+   - Generates embeddings for each chunk
+   - Stores document metadata and chunks in MongoDB
+3. The stored documents are available for search and used to generate flashcards, quizzes, and concept summaries
+
+## Testing the API Endpoint
+
+To test the document processing API:
+
+1. Use Postman or a similar tool to send a POST request to `/api/process-document`
+2. Set the request body to `form-data` format
+3. Add a key `file` with a file as the value (PDF, DOCX, or TXT)
+4. Optionally add a `userId` key if you have authentication set up
+5. Send the request and check the response
+
+Example response:
+```json
+{
+  "success": true,
+  "message": "Document processed and ingested successfully.",
+  "documentId": "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
+  "fileName": "your-document.pdf",
+  "flashcards": [...],
+  "quizzes": [...]
+}
+```
+
+## License
+
+[MIT License](LICENSE)
+
+## Acknowledgements
+
+- Next.js
+- MongoDB Atlas
+- LangChain
+- HuggingFace Transformers

@@ -27,8 +27,7 @@ export default function UploadPage() {
       setError(null)
     }
   }
-
-  const handleUpload = () => {
+  const handleUpload = async () => {
     if (!file) {
       setError("Please select a file to upload")
       return
@@ -39,25 +38,42 @@ export default function UploadPage() {
     setIsUploading(true)
     setUploadProgress(0)
 
-    // Simulate upload progress
-    const interval = setInterval(() => {
-      setUploadProgress((prev) => {
-        if (prev >= 100) {
-          clearInterval(interval)
-          setIsUploading(false)
-          setIsProcessing(true)
-
-          // Simulate AI processing
-          setTimeout(() => {
-            setIsProcessing(false)
-            setIsComplete(true)
-          }, 3000)
-
-          return 100
-        }
-        return prev + 5
+    // Create FormData and append the file
+    const formData = new FormData()
+    formData.append("file", file)
+    
+    try {
+      // Start upload progress simulation
+      const progressInterval = setInterval(() => {
+        setUploadProgress(prev => Math.min(prev + 5, 95)) // Cap at 95% until complete
+      }, 200)
+      
+      // Make the actual API call
+      const response = await fetch("/api/process-document", {
+        method: "POST",
+        body: formData,
       })
-    }, 200)
+      
+      clearInterval(progressInterval)
+      
+      if (!response.ok) {
+        const data = await response.json()
+        throw new Error(data.error || "Failed to upload document")
+      }
+      
+      const data = await response.json()
+      console.log("Upload successful:", data)
+      
+      setUploadProgress(100)
+      setIsUploading(false)
+      setIsProcessing(false)
+      setIsComplete(true)
+    } catch (err: any) {
+      console.error("Upload error:", err)
+      setError(err.message || "Failed to upload document")
+      setIsUploading(false)
+      setUploadProgress(0)
+    }
   }
 
   const resetUpload = () => {
